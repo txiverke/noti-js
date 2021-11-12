@@ -1,0 +1,12 @@
+{
+  "name": "noti-js",
+  "version": "1.0.0",
+  "description": "Notifications library",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "txiverke <xavi.vila.albiol@gmail.com>",
+  "license": "ISC"
+}
