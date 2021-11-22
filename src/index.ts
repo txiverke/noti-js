@@ -1,34 +1,27 @@
 import { Auto } from './Auto';
-import { Async } from './Async';
 import { Static } from './Static';
-
-export interface IPromise {
-  fn: Function;
-  success: Function;
-  error: Function;
-}
+import { Dict } from './types'
 
 export interface INotifierOptions {
   duration: number;
   position: string;
-  extend?: { [x: string]: string };
+  extend: Dict<{}>;
 }
 
-export const notifier = {
-  auto: (msg: string, options: Partial<INotifierOptions> = {}) => {
-    const newAuto = new Auto(msg, options);
-    newAuto.render();
-  },
-  static: (msg: string, options: Partial<INotifierOptions> = {}) => {
-    const newStatic = new Static(msg, options);
-    newStatic.render();
-  },
-  promise: (
-    msg: string,
-    options: Partial<INotifierOptions> = {},
-    promise: IPromise,
-  ) => {
-    const newPromise = new Async(msg, options, promise);
-    return newPromise.render();
-  },
+function auto(msg: string, options: INotifierOptions = {} as INotifierOptions) {
+  const newAuto = new Auto(msg, options);
+  newAuto.render();
+}
+
+function close(
+  msg: string,
+  options: INotifierOptions = {} as INotifierOptions,
+) {
+  const newStatic = new Static(msg, options);
+  newStatic.render();
+}
+
+export const notijs = {
+  auto,
+  close,
 };

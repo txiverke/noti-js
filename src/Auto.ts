@@ -1,43 +1,37 @@
 import { Message } from './Message';
 import { INotifierOptions } from './index';
 import * as Helper from './helpers';
-import DEFAULTS from './defaults.json';
+import SETTINGS from './settings';
 
 export class Auto extends Message {
-  $progress: HTMLElement;
-  start_time_progress: number | null;
-  previous_time_progress: number | null;
+  $progress!: HTMLElement;
+  start_time_progress!: number;
+  previous_time_progress!: number;
 
   protected endTransitionEventListener: EventListener;
 
-  constructor(text: string, options: Partial<INotifierOptions>) {
+  constructor(text: string, options: INotifierOptions) {
     super(text, options);
-
-    this.$progress = Helper.setDOM(document.createElement('div'), {
-      ...DEFAULTS.styles.progress,
-    });
-
-    this.start_time_progress = null;
-    this.previous_time_progress = null;
-
     this.endTransitionEventListener = () => this.destroy();
   }
 
-  render() {
+  public render() {
     this.init();
-
+    this.$progress = Helper.setDOM(document.createElement('div'), {
+      ...SETTINGS.styles.progress,
+    });
     this.$message.addEventListener(
       'transitionend',
       this.endTransitionEventListener,
     );
 
     this.$message.appendChild(this.$progress);
-    window.requestAnimationFrame(this.setProgress.bind(this));
+    window.requestAnimationFrame(this.progress.bind(this));
 
     setTimeout(() => this.animate('out'), this.options.duration);
   }
 
-  setProgress(current_time_progress: number) {
+  private progress(current_time_progress: number) {
     if (!this.start_time_progress) {
       this.start_time_progress = current_time_progress;
     }
@@ -51,11 +45,11 @@ export class Auto extends Message {
 
     if (elapsed < this.options.duration) {
       this.previous_time_progress = current_time_progress;
-      window.requestAnimationFrame(this.setProgress.bind(this));
+      window.requestAnimationFrame(this.progress.bind(this));
     }
   }
 
-  destroy() {
+  protected destroy() {
     if (this.$message.dataset.animation === 'out') {
       super.destroy();
 

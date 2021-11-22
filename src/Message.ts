@@ -1,66 +1,64 @@
 import { INotifierOptions } from './index';
 import * as Helper from './helpers';
-import * as DEFAULTS from './defaults.json';
+import SETTINGS from './settings';
 
-export class Message {
-  text: string;
-  options: INotifierOptions;
-  observer: MutationObserver;
-  $container: HTMLElement;
-  $message: HTMLElement;
+export class Message implements Message {
+  private observer: MutationObserver;
+  public $container!: HTMLElement;
+  public $message!: HTMLElement;
 
-  constructor(text: string, options: Partial<INotifierOptions>) {
+  constructor(public text: string, public options: INotifierOptions) {
     this.text = text;
     this.options = {
       duration: options?.duration
         ? options.duration * 1000
-        : DEFAULTS.options.duration,
-      position: options?.position || DEFAULTS.options.position,
+        : SETTINGS.options.duration,
+      position: options?.position || SETTINGS.options.position,
       extend: options?.extend || {},
     };
 
+    this.animate = this.animate.bind(this);
+
+    this.observer = new MutationObserver((mutationsList) =>
+      // @ts-ignore
+      this.mutationObserverCB(mutationsList, this.animate),
+    );
+  }
+
+  public init() {
     this.$container =
-      document.getElementById(DEFAULTS.id) ||
+      document.getElementById(SETTINGS.id) ||
       Helper.setDOM(document.createElement('ol'), {
-        ...DEFAULTS.styles.container,
+        ...SETTINGS.styles.container,
         ...Helper.setPosition(this.options.position),
       });
 
     this.$message = Helper.setDOM(document.createElement('li'), {
-      ...DEFAULTS.styles.message,
+      ...SETTINGS.styles.message,
       ...this.options.extend,
     });
 
-    this.observer = new MutationObserver((mutationsList) => {
-      for (const mutation of mutationsList) {
-        if (
-          mutation.type === 'childList' &&
-          // @ts-ignore
-          mutation.target?.id === DEFAULTS.id
-        ) {
-          this.animate('in');
-        }
-      }
-    });
-  }
-
-  init() {
     this.observer.observe(document, {
       attributes: true,
       childList: true,
       subtree: true,
     });
 
-    if (!document.getElementById(DEFAULTS.id)) {
-      this.$container.id = DEFAULTS.id;
+    if (!document.getElementById(SETTINGS.id)) {
+      this.$container.id = SETTINGS.id;
       document.body.append(this.$container);
     }
 
-    this.$message.textContent = this.text;
+    const messageTxt = Helper.setDOM(document.createElement('span'), {
+      flex: 1,
+    });
+
+    messageTxt.textContent = this.text;
+    this.$message.append(messageTxt);
     this.$container.append(this.$message);
   }
 
-  animate(effect: 'in' | 'out') {
+  protected animate(effect: 'in' | 'out') {
     this.$message.dataset.animation = effect;
     const [x, y] = Helper.setTranslate(effect, this.options.position);
 
@@ -72,7 +70,21 @@ export class Message {
     this.observer.disconnect();
   }
 
-  destroy() {
+  protected destroy() {
     this.$message.remove();
+  }
+
+  private mutationObserverCB(
+    mutationsList: (MutationRecord & { target: { id: string } })[],
+    cb: (str: 'in') => void,
+  ) {
+    for (const mutation of mutationsList) {
+      if (
+        mutation.type === 'childList' &&
+        mutation.target?.id === SETTINGS.id
+      ) {
+        cb('in');
+      }
+    }
   }
 }

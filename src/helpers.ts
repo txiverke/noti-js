@@ -1,4 +1,4 @@
-import * as DEFAULTS from './defaults.json';
+import SETTINGS from './settings';
 
 const POSITIONS = [
   'top',
@@ -41,7 +41,7 @@ export function setPosition(position: string) {
   }
 
   return positions_values.length === 1
-    ? { ...currentPosition, ...DEFAULTS.styles.centered }
+    ? { ...currentPosition, ...SETTINGS.styles.centered }
     : currentPosition;
 }
 

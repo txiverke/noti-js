@@ -2,11 +2,28 @@
   "name": "noti-js",
   "version": "1.0.0",
   "description": "Notifications library",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "typings": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup -c",
+    "prepare": "npm run build",
+    "link": "npm run prepare && npm link"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/txiverke/noti-js.git"
   },
   "keywords": [],
   "author": "txiverke <xavi.vila.albiol@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "rollup": "^2.60.1",
+    "rollup-plugin-dts": "^4.0.1",
+    "rollup-plugin-esbuild": "^4.7.2",
+    "typescript": "^4.4.4"
+  }
 }
