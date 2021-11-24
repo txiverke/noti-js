@@ -1,7 +1,6 @@
 export default {
   id: 'render_message_container',
   options: {
-    mode: 'auto',
     duration: 3000,
     position: 'top_right',
   },
@@ -16,12 +15,11 @@ export default {
       margin: '0',
       display: 'flex',
       alignItems: 'center',
-      
     },
     message: {
       width: '250px',
       height: 'auto',
-      border: '1px solid gray',
+      border: '1px solid rgb(0 0 0 / 0.2)',
       borderRadius: '3px',
       boxShadow: '0 3px 10px rgb(0 0 0 / 0.2)',
       background: 'white',
@@ -36,12 +34,25 @@ export default {
       alignItems: 'center',
     },
     button: {
-      fontSize: '13px',
-      padding: '3px 6px',
-      background: 'none',
-      border: '1px solid gray',
-      borderRadius: '25px',
-      cursor: 'pointer'
+      width: '18px',
+      height: 'auto',
+      background: 'transparent',
+      border: 'none',
+      cursor: 'pointer',
+      padding: 0,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    icon: {
+      width: '18px',
+      height: 'auto',
+      margin: '0 6px 0 0',
+      padding: 0,
+    },
+    txt: {
+      flex: 1,
+      margin: '0 6px 0 0',
     },
     progress: {
       position: 'absolute',
@@ -49,7 +60,7 @@ export default {
       left: '1px',
       width: '0',
       height: '1px',
-      background: 'blue',
+      background: 'rgb(0 0 0 / 0.2)',
     },
     centered: {
       width: '100%',

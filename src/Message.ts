@@ -1,18 +1,23 @@
-import { INotifierOptions } from './index';
+import { NotijsOptions } from './index';
 import * as Helper from './helpers';
 import SETTINGS from './settings';
+import successSVG from './svgs/success.svg';
+import errorSVG from './svgs/error.svg';
+import notificationSVG from './svgs/notification.svg';
 
 export class Message implements Message {
   private observer: MutationObserver;
   public $container!: HTMLElement;
   public $message!: HTMLElement;
+  public $icon!: HTMLElement;
 
-  constructor(public text: string, public options: INotifierOptions) {
+  constructor(public text: string, public options: NotijsOptions) {
     this.text = text;
     this.options = {
       duration: options?.duration
         ? options.duration * 1000
         : SETTINGS.options.duration,
+      icon: options?.icon,
       position: options?.position || SETTINGS.options.position,
       extend: options?.extend || {},
     };
@@ -28,15 +33,23 @@ export class Message implements Message {
   public init() {
     this.$container =
       document.getElementById(SETTINGS.id) ||
-      Helper.setDOM(document.createElement('ol'), {
+      Helper.setDOM('ol', {
         ...SETTINGS.styles.container,
         ...Helper.setPosition(this.options.position),
       });
 
-    this.$message = Helper.setDOM(document.createElement('li'), {
-      ...SETTINGS.styles.message,
-      ...this.options.extend,
-    });
+    this.$message = Helper.setDOM(
+      'li',
+      {
+        ...SETTINGS.styles.message,
+        ...this.options.extend,
+      },
+      {
+        'role': 'alert',
+        'aria-live': 'polite',
+        'aria-atomic': 'true',
+      },
+    );
 
     this.observer.observe(document, {
       attributes: true,
@@ -49,9 +62,12 @@ export class Message implements Message {
       document.body.append(this.$container);
     }
 
-    const messageTxt = Helper.setDOM(document.createElement('span'), {
-      flex: 1,
-    });
+    if (this.options.icon) {
+      this.$icon = this.icon();
+      this.$message.append(this.$icon);
+    }
+
+    const messageTxt = Helper.setDOM('span', { ...SETTINGS.styles.txt });
 
     messageTxt.textContent = this.text;
     this.$message.append(messageTxt);
@@ -86,5 +102,25 @@ export class Message implements Message {
         cb('in');
       }
     }
+  }
+
+  private icon() {
+    let src: typeof errorSVG | typeof notificationSVG | typeof successSVG | '';
+
+    switch (this.options.icon) {
+      case 'error':
+        src = errorSVG;
+        break;
+      case 'notification':
+        src = notificationSVG;
+        break;
+      case 'success':
+        src = successSVG;
+        break;
+      default:
+        throw new Error('Invalid Icon');
+    }
+
+    return Helper.setDOM('img', { ...SETTINGS.styles.icon }, { src });
   }
 }

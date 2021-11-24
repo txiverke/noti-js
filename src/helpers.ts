@@ -12,10 +12,13 @@ const POSITIONS = [
 const ANIMATION_SIZE = 10;
 
 export function setDOM(
-  element: HTMLElement,
+  tag: string,
   styles?: { [key: string]: string | number } | null,
   attrs?: { [key: string]: string } | null,
-) {
+): HTMLElement{
+
+  const element = document.createElement(tag)
+
   for (let key in styles) {
     // @ts-ignore
     element.style[key] = styles[key];

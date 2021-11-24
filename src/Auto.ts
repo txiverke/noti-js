@@ -1,5 +1,5 @@
 import { Message } from './Message';
-import { INotifierOptions } from './index';
+import { NotijsOptions } from './index';
 import * as Helper from './helpers';
 import SETTINGS from './settings';
 
@@ -10,16 +10,14 @@ export class Auto extends Message {
 
   protected endTransitionEventListener: EventListener;
 
-  constructor(text: string, options: INotifierOptions) {
+  constructor(text: string, options: NotijsOptions) {
     super(text, options);
     this.endTransitionEventListener = () => this.destroy();
   }
 
   public render() {
     this.init();
-    this.$progress = Helper.setDOM(document.createElement('div'), {
-      ...SETTINGS.styles.progress,
-    });
+    this.$progress = Helper.setDOM('div', { ...SETTINGS.styles.progress });
     this.$message.addEventListener(
       'transitionend',
       this.endTransitionEventListener,

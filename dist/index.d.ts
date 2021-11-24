@@ -2,16 +2,20 @@ interface Dict<T> {
     [k: string]: T;
 }
 
-interface INotifierOptions {
+declare type Icon = 'error' | 'notification' | 'success';
+declare type Mode = 'auto' | 'close';
+interface NotijsOptions {
+    mode?: Mode;
+    icon: Icon;
     duration: number;
     position: string;
     extend: Dict<{}>;
 }
-declare function auto(msg: string, options?: INotifierOptions): void;
-declare function close(msg: string, options?: INotifierOptions): void;
+declare function render(msg: string, options?: NotijsOptions): void;
+declare function promise(msg: string, options: NotijsOptions | undefined, promise: () => Promise<any>): Promise<any>;
 declare const notijs: {
-    auto: typeof auto;
-    close: typeof close;
+    render: typeof render;
+    promise: typeof promise;
 };
 
-export { INotifierOptions, notijs };
+export { NotijsOptions, notijs };

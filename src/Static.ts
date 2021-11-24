@@ -1,30 +1,36 @@
 import { Message } from './Message';
-import { INotifierOptions } from './index';
+import { NotijsOptions } from './index';
 import SETTINGS from './settings';
 import * as Helper from './helpers';
+import closeSVG from './svgs/close.svg';
 
 export class Static extends Message {
-  public $close: HTMLElement;
+  public $button: HTMLElement;
   protected clickEventListener: EventListener;
 
-  constructor(text: string, options: INotifierOptions) {
+  constructor(text: string, options: NotijsOptions) {
     super(text, options);
-    this.$close = Helper.setDOM(document.createElement('button'), {
-      ...SETTINGS.styles.button,
-    });
+    this.$button = Helper.setDOM('button', { ...SETTINGS.styles.button });
 
     this.clickEventListener = () => this.destroy();
   }
 
   public render() {
     this.init();
-    this.$close.textContent = 'Close'
-    this.$message.appendChild(this.$close);
-    this.$close.addEventListener('click', this.clickEventListener);
+
+    const img = Helper.setDOM(
+      'img',
+      { ...SETTINGS.styles.icon },
+      { src: closeSVG },
+    );
+
+    this.$button.appendChild(img);
+    this.$message.appendChild(this.$button);
+    this.$button.addEventListener('click', this.clickEventListener);
   }
 
   protected destroy() {
     super.destroy();
-    this.$close.removeEventListener('click', this.clickEventListener);
+    this.$button.removeEventListener('click', this.clickEventListener);
   }
 }

@@ -1,4 +1,6 @@
 import dts from 'rollup-plugin-dts';
+import svg from 'rollup-plugin-svg';
+import { terser } from 'rollup-plugin-terser';
 import esbuild from 'rollup-plugin-esbuild';
 
 const name = require('./package.json').main.replace(/\.js$/, '');
@@ -11,7 +13,15 @@ const bundle = (config) => ({
 
 export default [
   bundle({
-    plugins: [esbuild()],
+    plugins: [
+      svg({ base64: true }),
+      terser({
+        ecma: 2020,
+        module: true,
+        warnings: true,
+      }),
+      esbuild(),
+    ],
     output: [
       {
         file: `${name}.js`,
