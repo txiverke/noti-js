@@ -5,7 +5,7 @@ import successSVG from './svgs/success.svg';
 import errorSVG from './svgs/error.svg';
 import notificationSVG from './svgs/notification.svg';
 
-export class Message implements Message {
+export class Message {
   private observer: MutationObserver;
   public $container!: HTMLElement;
   public $message!: HTMLElement;
@@ -33,10 +33,7 @@ export class Message implements Message {
   public init() {
     this.$container =
       document.getElementById(SETTINGS.id) ||
-      Helper.setDOM('ol', {
-        ...SETTINGS.styles.container,
-        ...Helper.setPosition(this.options.position),
-      });
+      Helper.setDOM('ol', { ...Helper.setPosition(this.options.position) });
 
     this.$message = Helper.setDOM(
       'li',
@@ -58,7 +55,9 @@ export class Message implements Message {
     });
 
     if (!document.getElementById(SETTINGS.id)) {
+      this.css();
       this.$container.id = SETTINGS.id;
+      this.$container.classList.add('notijs_container');
       document.body.append(this.$container);
     }
 
@@ -68,8 +67,8 @@ export class Message implements Message {
     }
 
     const messageTxt = Helper.setDOM('span', { ...SETTINGS.styles.txt });
-
     messageTxt.textContent = this.text;
+
     this.$message.append(messageTxt);
     this.$container.append(this.$message);
   }
@@ -105,7 +104,7 @@ export class Message implements Message {
   }
 
   private icon() {
-    let src: typeof errorSVG | typeof notificationSVG | typeof successSVG | '';
+    let src: typeof errorSVG | typeof notificationSVG | typeof successSVG;
 
     switch (this.options.icon) {
       case 'error':
@@ -121,6 +120,18 @@ export class Message implements Message {
         throw new Error('Invalid Icon');
     }
 
-    return Helper.setDOM('img', { ...SETTINGS.styles.icon }, { src });
+    return Helper.setDOM(
+      'img',
+      { ...SETTINGS.styles.icon, margin: '0 8px 0 0' },
+      { src },
+    );
+  }
+
+  private css() {
+    const animationCSS = Helper.setDOM('style');
+    animationCSS.id = 'notijs_styles';
+    animationCSS.textContent = `.notijs_container{position:fixed;width: 250px;height: auto;flex-direction: column;list-style:none;padding: 5px 0;margin: 0;display: flex;align-items: center;}.notijs_rotate{animation: notijs_rotation .75s linear infinite;}@keyframes notijs_rotation {from{transform: rotate(0deg);}to{transform: rotate(359deg);}`;
+
+    document.head.append(animationCSS);
   }
 }

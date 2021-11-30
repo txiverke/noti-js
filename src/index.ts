@@ -14,6 +14,12 @@ export interface NotijsOptions {
   extend: Dict<{}>;
 }
 
+export interface NotijsPromise {
+  fn: () => Promise<any>;
+  success: string;
+  error: string;
+}
+
 function render(msg: string, options = {} as NotijsOptions) {
   let newNotijs: Auto | Static;
   const { mode, ...rest } = options;
@@ -35,7 +41,7 @@ function render(msg: string, options = {} as NotijsOptions) {
 async function promise(
   msg: string,
   options = {} as NotijsOptions,
-  promise: () => Promise<any>,
+  promise: NotijsPromise,
 ) {
   const newNotijs = new Async(msg, options, promise);
   return await newNotijs.render();

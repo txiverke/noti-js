@@ -1,7 +1,7 @@
 import dts from 'rollup-plugin-dts';
 import svg from 'rollup-plugin-svg';
-import { terser } from 'rollup-plugin-terser';
 import esbuild from 'rollup-plugin-esbuild';
+import { terser } from 'rollup-plugin-terser';
 
 const name = require('./package.json').main.replace(/\.js$/, '');
 

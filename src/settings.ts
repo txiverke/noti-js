@@ -5,17 +5,6 @@ export default {
     position: 'top_right',
   },
   styles: {
-    container: {
-      position: 'fixed',
-      width: '250px',
-      height: 'auto',
-      flexDirection: 'column',
-      listStyle: 'none',
-      padding: '5px 0',
-      margin: '0',
-      display: 'flex',
-      alignItems: 'center',
-    },
     message: {
       width: '250px',
       height: 'auto',
@@ -47,8 +36,6 @@ export default {
     icon: {
       width: '18px',
       height: 'auto',
-      margin: '0 6px 0 0',
-      padding: 0,
     },
     txt: {
       flex: 1,
