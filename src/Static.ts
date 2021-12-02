@@ -1,5 +1,7 @@
 import { Message } from './Message';
 import { NotijsOptions } from './index';
+import { STYLES } from './settings';
+
 import closeSVG from './svgs/close.svg';
 
 export class Static extends Message {
@@ -14,6 +16,7 @@ export class Static extends Message {
 
   public render() {
     this.init();
+    this.css('btn', STYLES.btn);
 
     const img = document.createElement('img');
     img.src = closeSVG;

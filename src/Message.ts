@@ -35,14 +35,17 @@ export class Message {
 
   public init() {
     if (!document.getElementById(OPTIONS.id)) {
-      this.css();
+      this.css('body', STYLES.body);
 
       this.$container.id = OPTIONS.id;
       this.$container.classList.add('notijs_container');
-      this.$container.dataset.position = this.options.position;
-      this.$container = Helper.setDOM(this.$container, {
-        ...Helper.setPosition(this.options.position),
-      });
+      this.$container = Helper.setDOM(
+        this.$container,
+        {
+          ...Helper.setPosition(this.options.position),
+        },
+        { 'data-position': this.options.position },
+      );
 
       document.body.append(this.$container);
     }
@@ -113,11 +116,15 @@ export class Message {
     return img;
   }
 
-  private css() {
-    const styles = document.createElement('style');
-    styles.id = 'notijs_styles';
-    styles.textContent = STYLES;
+  public css(prop: string, style: string) {
+    const id = `notijs_${prop}`;
 
-    document.head.append(styles);
+    if (!document.getElementById(id)) {
+      const styles = document.createElement('style');
+      styles.id = id;
+      styles.textContent = style;
+
+      document.head.append(styles);
+    }
   }
 }

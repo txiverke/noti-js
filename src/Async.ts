@@ -1,4 +1,5 @@
 import { Message } from './Message';
+import { STYLES } from './settings';
 import { NotijsOptions, NotijsPromise } from './index';
 import loadingSVG from './svgs/loading.svg';
 import successSVG from './svgs/success.svg';
@@ -21,7 +22,8 @@ export class Async extends Message {
 
   public async render() {
     this.init();
-  
+    this.css('animation', STYLES.animation);
+
     this.$loader.src = loadingSVG;
     this.$loader.alt = 'Loading...';
     this.$message.addEventListener('transitionend', this.endTransitionEventListener);

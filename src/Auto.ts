@@ -1,5 +1,6 @@
 import { Message } from './Message';
 import { NotijsOptions } from './index';
+import { STYLES } from './settings';
 import * as Helper from './helpers';
 
 export class Auto extends Message {
@@ -16,6 +17,7 @@ export class Auto extends Message {
 
   public render() {
     this.init();
+    this.css('progress', STYLES.progress);
 
     this.$progress = document.createElement('div');
     this.$progress.classList.add('notijs_progress');
