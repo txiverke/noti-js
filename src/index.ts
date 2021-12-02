@@ -3,7 +3,7 @@ import { Static } from './Static';
 import { Async } from './Async';
 import { Dict } from './types';
 
-type Icon = 'error' | 'notification' | 'success';
+type Icon = 'error' | 'notification' | 'success' | { src: string; alt?: string };
 type Mode = 'auto' | 'close';
 
 export interface NotijsOptions {
@@ -11,7 +11,10 @@ export interface NotijsOptions {
   icon: Icon;
   duration: number;
   position: string;
-  extend: Dict<{}>;
+  extend?: {
+    message: Dict<string | number>;
+    progressbar: Dict<string | number>;
+  };
 }
 
 export interface NotijsPromise {
@@ -38,11 +41,7 @@ function render(msg: string, options = {} as NotijsOptions) {
   newNotijs.render();
 }
 
-async function promise(
-  msg: string,
-  options = {} as NotijsOptions,
-  promise: NotijsPromise,
-) {
+async function promise(msg: string, options = {} as NotijsOptions, promise: NotijsPromise) {
   const newNotijs = new Async(msg, options, promise);
   return await newNotijs.render();
 }

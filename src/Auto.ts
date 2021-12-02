@@ -1,7 +1,6 @@
 import { Message } from './Message';
 import { NotijsOptions } from './index';
 import * as Helper from './helpers';
-import SETTINGS from './settings';
 
 export class Auto extends Message {
   $progress!: HTMLElement;
@@ -17,13 +16,14 @@ export class Auto extends Message {
 
   public render() {
     this.init();
-    this.$progress = Helper.setDOM('div', { ...SETTINGS.styles.progress });
-    this.$message.addEventListener(
-      'transitionend',
-      this.endTransitionEventListener,
-    );
 
+    this.$progress = document.createElement('div');
+    this.$progress.classList.add('notijs_progress');
+    this.$progress = Helper.setDOM(this.$progress, this.options?.extend?.progressbar);
+
+    this.$message.addEventListener('transitionend', this.endTransitionEventListener);
     this.$message.appendChild(this.$progress);
+
     window.requestAnimationFrame(this.progress.bind(this));
 
     setTimeout(() => this.animate('out'), this.options.duration);
@@ -51,10 +51,7 @@ export class Auto extends Message {
     if (this.$message.dataset.animation === 'out') {
       super.destroy();
 
-      this.$message.removeEventListener(
-        'transitionend',
-        this.endTransitionEventListener,
-      );
+      this.$message.removeEventListener('transitionend', this.endTransitionEventListener);
     }
   }
 }

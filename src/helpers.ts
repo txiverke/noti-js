@@ -1,24 +1,11 @@
-import SETTINGS from './settings';
-
-const POSITIONS = [
-  'top',
-  'top_left',
-  'top_right',
-  'bottom',
-  'bottom_left',
-  'bottom_right',
-];
-
+const POSITIONS = ['top', 'top_left', 'top_right', 'bottom', 'bottom_left', 'bottom_right'];
 const ANIMATION_SIZE = 10;
 
 export function setDOM(
-  tag: string,
+  element: HTMLElement,
   styles?: { [key: string]: string | number } | null,
   attrs?: { [key: string]: string } | null,
-): HTMLElement{
-
-  const element = document.createElement(tag)
-
+): HTMLElement {
   for (let key in styles) {
     // @ts-ignore
     element.style[key] = styles[key];
@@ -43,9 +30,7 @@ export function setPosition(position: string) {
     currentPosition[key] = 0;
   }
 
-  return positions_values.length === 1
-    ? { ...currentPosition, ...SETTINGS.styles.centered }
-    : currentPosition;
+  return positions_values.length === 1 ? { ...currentPosition, width: '100%' } : currentPosition;
 }
 
 export function setTranslate(effect: string, position: string) {

@@ -1,64 +1,60 @@
 import { NotijsOptions } from './index';
 import * as Helper from './helpers';
-import SETTINGS from './settings';
+import { ARIA, OPTIONS, STYLES } from './settings';
+
 import successSVG from './svgs/success.svg';
 import errorSVG from './svgs/error.svg';
 import notificationSVG from './svgs/notification.svg';
 
 export class Message {
   private observer: MutationObserver;
-  public $container!: HTMLElement;
+  public $container: HTMLElement;
   public $message!: HTMLElement;
   public $icon!: HTMLElement;
 
   constructor(public text: string, public options: NotijsOptions) {
     this.text = text;
     this.options = {
-      duration: options?.duration
-        ? options.duration * 1000
-        : SETTINGS.options.duration,
+      duration: (options?.duration || OPTIONS.duration) * 1000,
+      position: options?.position || OPTIONS.position,
       icon: options?.icon,
-      position: options?.position || SETTINGS.options.position,
-      extend: options?.extend || {},
+      extend: options?.extend,
     };
 
+    this.$container = document.getElementById(OPTIONS.id) || document.createElement('ol');
     this.animate = this.animate.bind(this);
 
-    this.observer = new MutationObserver((mutationsList) =>
-      // @ts-ignore
-      this.mutationObserverCB(mutationsList, this.animate),
-    );
+    this.observer = new MutationObserver((mutationsList: (MutationRecord & { target: any })[]) => {
+      for (const mutation of mutationsList) {
+        if (mutation.type === 'childList' && mutation.target.id === OPTIONS.id) {
+          this.animate('in');
+        }
+      }
+    });
   }
 
   public init() {
-    this.$container =
-      document.getElementById(SETTINGS.id) ||
-      Helper.setDOM('ol', { ...Helper.setPosition(this.options.position) });
-
-    this.$message = Helper.setDOM(
-      'li',
-      {
-        ...SETTINGS.styles.message,
-        ...this.options.extend,
-      },
-      {
-        'role': 'alert',
-        'aria-live': 'polite',
-        'aria-atomic': 'true',
-      },
-    );
-
-    this.observer.observe(document, {
-      attributes: true,
-      childList: true,
-      subtree: true,
-    });
-
-    if (!document.getElementById(SETTINGS.id)) {
+    if (!document.getElementById(OPTIONS.id)) {
       this.css();
-      this.$container.id = SETTINGS.id;
+
+      this.$container.id = OPTIONS.id;
       this.$container.classList.add('notijs_container');
+      this.$container.dataset.position = this.options.position;
+      this.$container = Helper.setDOM(this.$container, {
+        ...Helper.setPosition(this.options.position),
+      });
+
       document.body.append(this.$container);
+    }
+
+    this.$message = document.createElement('li');
+    this.$message.classList.add('notijs_message');
+    this.$message = Helper.setDOM(this.$message, this.options?.extend?.message, ARIA);
+
+    this.observer.observe(document, { childList: true, subtree: true });
+
+    if (this.options.position !== this.$container.dataset.position) {
+      Helper.setDOM(this.$container, { ...Helper.setPosition(this.options.position) });
     }
 
     if (this.options.icon) {
@@ -66,7 +62,8 @@ export class Message {
       this.$message.append(this.$icon);
     }
 
-    const messageTxt = Helper.setDOM('span', { ...SETTINGS.styles.txt });
+    const messageTxt = document.createElement('span');
+    messageTxt.classList.add('notijs_txt');
     messageTxt.textContent = this.text;
 
     this.$message.append(messageTxt);
@@ -89,49 +86,38 @@ export class Message {
     this.$message.remove();
   }
 
-  private mutationObserverCB(
-    mutationsList: (MutationRecord & { target: { id: string } })[],
-    cb: (str: 'in') => void,
-  ) {
-    for (const mutation of mutationsList) {
-      if (
-        mutation.type === 'childList' &&
-        mutation.target?.id === SETTINGS.id
-      ) {
-        cb('in');
-      }
-    }
-  }
-
   private icon() {
-    let src: typeof errorSVG | typeof notificationSVG | typeof successSVG;
+    let img = Helper.setDOM(document.createElement('img'), {
+      margin: '0 8px 0 0',
+      width: '18px',
+      height: 'auto',
+    });
 
-    switch (this.options.icon) {
-      case 'error':
-        src = errorSVG;
-        break;
-      case 'notification':
-        src = notificationSVG;
-        break;
-      case 'success':
-        src = successSVG;
-        break;
-      default:
-        throw new Error('Invalid Icon');
+    if (typeof this.options.icon === 'object') {
+      img = Helper.setDOM(img, null, {
+        src: this.options.icon.src,
+        alt: this.options.icon.alt || 'Icon',
+      });
+    } else {
+      img = Helper.setDOM(img, null, {
+        src:
+          this.options.icon === 'error'
+            ? errorSVG
+            : this.options.icon === 'success'
+            ? successSVG
+            : notificationSVG,
+        alt: this.options.icon,
+      });
     }
 
-    return Helper.setDOM(
-      'img',
-      { ...SETTINGS.styles.icon, margin: '0 8px 0 0' },
-      { src },
-    );
+    return img;
   }
 
   private css() {
-    const animationCSS = Helper.setDOM('style');
-    animationCSS.id = 'notijs_styles';
-    animationCSS.textContent = `.notijs_container{position:fixed;width: 250px;height: auto;flex-direction: column;list-style:none;padding: 5px 0;margin: 0;display: flex;align-items: center;}.notijs_rotate{animation: notijs_rotation .75s linear infinite;}@keyframes notijs_rotation {from{transform: rotate(0deg);}to{transform: rotate(359deg);}`;
+    const styles = document.createElement('style');
+    styles.id = 'notijs_styles';
+    styles.textContent = STYLES;
 
-    document.head.append(animationCSS);
+    document.head.append(styles);
   }
 }

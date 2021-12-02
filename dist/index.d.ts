@@ -2,14 +2,20 @@ interface Dict<T> {
     [k: string]: T;
 }
 
-declare type Icon = 'error' | 'notification' | 'success';
+declare type Icon = 'error' | 'notification' | 'success' | {
+    src: string;
+    alt?: string;
+};
 declare type Mode = 'auto' | 'close';
 interface NotijsOptions {
     mode?: Mode;
     icon: Icon;
     duration: number;
     position: string;
-    extend: Dict<{}>;
+    extend?: {
+        message: Dict<string | number>;
+        progressbar: Dict<string | number>;
+    };
 }
 interface NotijsPromise {
     fn: () => Promise<any>;
