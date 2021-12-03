@@ -1,27 +1,27 @@
-import { NotijsOptions } from './index';
-import * as Helper from './helpers';
-import { ARIA, OPTIONS, STYLES } from './settings';
-
+import { Dict, Extend, Icon, NotijsOptions, Position } from './index';
+import { OPTIONS, STYLES, ANIMATION_SIZE } from './settings';
 import successSVG from './svgs/success.svg';
 import errorSVG from './svgs/error.svg';
 import notificationSVG from './svgs/notification.svg';
 
 export class Message {
+  protected duration: number;
+  protected position: Position;
+  protected icon: Icon;
+  protected extend: Extend | undefined;
+  protected $container: HTMLElement;
+  protected $message!: HTMLElement;
+  protected $icon!: HTMLImageElement;
   private observer: MutationObserver;
-  public $container: HTMLElement;
-  public $message!: HTMLElement;
-  public $icon!: HTMLElement;
 
   constructor(public text: string, public options: NotijsOptions) {
     this.text = text;
-    this.options = {
-      duration: (options?.duration || OPTIONS.duration) * 1000,
-      position: options?.position || OPTIONS.position,
-      icon: options?.icon,
-      extend: options?.extend,
-    };
-
+    this.duration = (options?.duration || OPTIONS.duration) * 1000;
+    this.position = options?.position || OPTIONS.position;
+    this.icon = options?.icon;
+    this.extend = options?.extend;
     this.$container = document.getElementById(OPTIONS.id) || document.createElement('ol');
+
     this.animate = this.animate.bind(this);
 
     this.observer = new MutationObserver((mutationsList: (MutationRecord & { target: any })[]) => {
@@ -34,36 +34,27 @@ export class Message {
   }
 
   public init() {
+    this.observer.observe(document, { childList: true, subtree: true });
+
     if (!document.getElementById(OPTIONS.id)) {
-      this.css('body', STYLES.body);
+      this.setCSS('body', STYLES.body);
 
       this.$container.id = OPTIONS.id;
       this.$container.classList.add('notijs_container');
-      this.$container = Helper.setDOM(
-        this.$container,
-        {
-          ...Helper.setPosition(this.options.position),
-        },
-        { 'data-position': this.options.position },
-      );
 
       document.body.append(this.$container);
     }
 
-    this.$message = document.createElement('li');
+    this.$message = this.setExtend(document.createElement('li'), this.extend?.message || {});
     this.$message.classList.add('notijs_message');
-    this.$message = Helper.setDOM(this.$message, this.options?.extend?.message, ARIA);
+    this.$message.setAttribute('role', 'alert');
+    this.$message.setAttribute('aria-live', 'polite');
 
-    this.observer.observe(document, { childList: true, subtree: true });
-
-    if (this.options.position !== this.$container.dataset.position) {
-      Helper.setDOM(this.$container, { ...Helper.setPosition(this.options.position) });
+    if (this.position !== this.$container.dataset.position) {
+      this.$container = this.setPosition(this.$container, this.position);
     }
 
-    if (this.options.icon) {
-      this.$icon = this.icon();
-      this.$message.append(this.$icon);
-    }
+    if (this.icon) this.$message.append(this.setIcon());
 
     const messageTxt = document.createElement('span');
     messageTxt.classList.add('notijs_txt');
@@ -75,48 +66,50 @@ export class Message {
 
   protected animate(effect: 'in' | 'out') {
     this.$message.dataset.animation = effect;
-    const [x, y] = Helper.setTranslate(effect, this.options.position);
+    let coords = [0, 0];
+
+    switch (this.position) {
+      case 'top':
+        coords = effect === 'in' ? [0, ANIMATION_SIZE] : [0, -ANIMATION_SIZE];
+        break;
+      case 'bottom':
+        coords = effect === 'in' ? [0, -ANIMATION_SIZE] : [0, ANIMATION_SIZE];
+        break;
+      case 'top_right':
+      case 'bottom_right':
+        coords = effect === 'in' ? [-ANIMATION_SIZE, 0] : [ANIMATION_SIZE, 0];
+        break;
+      case 'top_left':
+      case 'bottom_left':
+        coords = effect === 'in' ? [ANIMATION_SIZE, 0] : [-ANIMATION_SIZE, 0];
+        break;
+    }
 
     setTimeout(() => {
-      this.$message.style.transform = `translate(${x}px, ${y}px)`;
+      this.$message.style.transform = `translate(${coords[0]}px, ${coords[1]}px)`;
       this.$message.style.opacity = effect === 'in' ? '1' : '0';
     });
 
     this.observer.disconnect();
   }
 
-  protected destroy() {
-    this.$message.remove();
-  }
+  private setIcon() {
+    this.$icon = document.createElement('img');
 
-  private icon() {
-    let img = Helper.setDOM(document.createElement('img'), {
-      margin: '0 8px 0 0',
-      width: '18px',
-      height: 'auto',
-    });
-
-    if (typeof this.options.icon === 'object') {
-      img = Helper.setDOM(img, null, {
-        src: this.options.icon.src,
-        alt: this.options.icon.alt || 'Icon',
-      });
+    if (typeof this.icon === 'object') {
+      this.$icon.src = this.icon.src;
+      this.$icon.alt = this.icon.alt || 'Icon';
     } else {
-      img = Helper.setDOM(img, null, {
-        src:
-          this.options.icon === 'error'
-            ? errorSVG
-            : this.options.icon === 'success'
-            ? successSVG
-            : notificationSVG,
-        alt: this.options.icon,
-      });
+      this.$icon.src =
+        this.icon === 'error' ? errorSVG : this.icon === 'success' ? successSVG : notificationSVG;
+      this.$icon.alt = this.icon;
     }
 
-    return img;
+    this.$icon.classList.add('notijs_icon');
+    return this.$icon;
   }
 
-  public css(prop: string, style: string) {
+  public setCSS(prop: string, style: string) {
     const id = `notijs_${prop}`;
 
     if (!document.getElementById(id)) {
@@ -126,5 +119,29 @@ export class Message {
 
       document.head.append(styles);
     }
+  }
+
+  public setExtend(el: HTMLElement, styles: Dict<string | number>) {
+    for (let key in styles) {
+      // @ts-ignoref
+      el.style[key] = styles[key];
+    }
+
+    return el;
+  }
+
+  private setPosition(el: HTMLElement, position: Position) {
+    const pos = {} as Dict<string | number>;
+    const parts = position.split('_');
+
+    for (let key of parts) {
+      pos[key] = 0;
+    }
+
+    return this.setExtend(el, parts.length === 1 ? { ...pos, width: '100%' } : pos);
+  }
+
+  protected destroy() {
+    this.$message.remove();
   }
 }

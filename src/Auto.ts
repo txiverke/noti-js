@@ -1,7 +1,6 @@
 import { Message } from './Message';
 import { NotijsOptions } from './index';
 import { STYLES } from './settings';
-import * as Helper from './helpers';
 
 export class Auto extends Message {
   $progress!: HTMLElement;
@@ -17,21 +16,19 @@ export class Auto extends Message {
 
   public render() {
     this.init();
-    this.css('progress', STYLES.progress);
+    this.setCSS('progress', STYLES.progress);
 
-    this.$progress = document.createElement('div');
+    this.$progress = this.setExtend(document.createElement('div'), this.extend?.progressbar || {});
     this.$progress.classList.add('notijs_progress');
-    this.$progress = Helper.setDOM(this.$progress, this.options?.extend?.progressbar);
-
-    this.$message.addEventListener('transitionend', this.endTransitionEventListener);
     this.$message.appendChild(this.$progress);
+    this.$message.addEventListener('transitionend', this.endTransitionEventListener);
 
-    window.requestAnimationFrame(this.progress.bind(this));
+    window.requestAnimationFrame(this.progressBar.bind(this));
 
-    setTimeout(() => this.animate('out'), this.options.duration);
+    setTimeout(() => this.animate('out'), this.duration);
   }
 
-  private progress(current_time_progress: number) {
+  private progressBar(current_time_progress: number) {
     if (!this.start_time_progress) {
       this.start_time_progress = current_time_progress;
     }
@@ -39,13 +36,13 @@ export class Auto extends Message {
     const elapsed = current_time_progress - this.start_time_progress;
 
     if (this.previous_time_progress !== current_time_progress) {
-      const count = (elapsed / this.options.duration) * 99;
+      const count = (elapsed / this.duration) * 99;
       this.$progress.style.width = `${count}%`;
     }
 
-    if (elapsed < this.options.duration) {
+    if (elapsed < this.duration) {
       this.previous_time_progress = current_time_progress;
-      window.requestAnimationFrame(this.progress.bind(this));
+      window.requestAnimationFrame(this.progressBar.bind(this));
     }
   }
 

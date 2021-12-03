@@ -16,7 +16,7 @@ export class Static extends Message {
 
   public render() {
     this.init();
-    this.css('btn', STYLES.btn);
+    this.setCSS('btn', STYLES.btn);
 
     const img = document.createElement('img');
     img.src = closeSVG;
@@ -24,8 +24,9 @@ export class Static extends Message {
 
     this.$button.classList.add('notijs_btn');
     this.$button.appendChild(img);
-    this.$message.appendChild(this.$button);
     this.$button.addEventListener('click', this.clickEventListener);
+
+    this.$message.appendChild(this.$button);
   }
 
   protected destroy() {

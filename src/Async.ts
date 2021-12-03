@@ -22,7 +22,7 @@ export class Async extends Message {
 
   public async render() {
     this.init();
-    this.css('animation', STYLES.animation);
+    this.setCSS('animation', STYLES.animation);
 
     this.$loader.src = loadingSVG;
     this.$loader.alt = 'Loading...';
@@ -52,7 +52,7 @@ export class Async extends Message {
         this.$loader.classList.remove('notijs_rotate');
         this.$loader.setAttribute('src', errorSVG);
         txt.textContent = this.promise.error;
-        setTimeout(() => this.animate('out'), this.options.duration);
+        setTimeout(() => this.animate('out'), this.duration);
         break;
 
       case 'running':
@@ -65,7 +65,7 @@ export class Async extends Message {
 
         this.$loader.setAttribute('src', successSVG);
         txt.textContent = this.promise.success;
-        setTimeout(() => this.animate('out'), this.options.duration);
+        setTimeout(() => this.animate('out'), this.duration);
         break;
       default:
         throw new Error();
