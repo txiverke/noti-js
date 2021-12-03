@@ -5,18 +5,16 @@ import loadingSVG from './svgs/loading.svg';
 import successSVG from './svgs/success.svg';
 import errorSVG from './svgs/error.svg';
 
-type State = 'error' | 'running' | 'stopped' | 'success';
+type State = 'error' | 'running' | 'success';
 
 export class Async extends Message {
   public $loader: HTMLImageElement;
-  public state: State;
   protected endTransitionEventListener: EventListener;
 
   constructor(text: string, options: NotijsOptions, public promise: NotijsPromise) {
     super(text, options);
     this.promise = promise;
     this.$loader = document.createElement('img');
-    this.state = 'stopped';
     this.endTransitionEventListener = () => this.destroy();
   }
 
@@ -44,31 +42,25 @@ export class Async extends Message {
   }
 
   private setState(currentState: State) {
-    this.state = currentState;
     const txt = this.$message.getElementsByTagName('span')[0];
 
-    switch (this.state) {
+    switch (currentState) {
       case 'error':
         this.$loader.classList.remove('notijs_rotate');
-        this.$loader.setAttribute('src', errorSVG);
+        this.$loader.src = errorSVG;
         txt.textContent = this.promise.error;
         setTimeout(() => this.animate('out'), this.duration);
         break;
 
-      case 'running':
-        this.$loader.classList.add('notijs_rotate');
-        this.$message.append(this.$loader);
-        break;
-
       case 'success':
         this.$loader.classList.remove('notijs_rotate');
-
-        this.$loader.setAttribute('src', successSVG);
+        this.$loader.src = successSVG;
         txt.textContent = this.promise.success;
         setTimeout(() => this.animate('out'), this.duration);
         break;
       default:
-        throw new Error();
+        this.$loader.classList.add('notijs_rotate');
+        this.$message.append(this.$loader);
     }
   }
 

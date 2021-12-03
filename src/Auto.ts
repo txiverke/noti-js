@@ -4,8 +4,8 @@ import { STYLES } from './settings';
 
 export class Auto extends Message {
   $progress!: HTMLElement;
-  start_time_progress!: number;
-  previous_time_progress!: number;
+  startProgress!: number;
+  previousProgress!: number;
 
   protected endTransitionEventListener: EventListener;
 
@@ -28,20 +28,20 @@ export class Auto extends Message {
     setTimeout(() => this.animate('out'), this.duration);
   }
 
-  private progressBar(current_time_progress: number) {
-    if (!this.start_time_progress) {
-      this.start_time_progress = current_time_progress;
+  private progressBar(curProgress: number) {
+    if (!this.startProgress) {
+      this.startProgress = curProgress;
     }
 
-    const elapsed = current_time_progress - this.start_time_progress;
+    const elapsed = curProgress - this.startProgress;
 
-    if (this.previous_time_progress !== current_time_progress) {
+    if (this.previousProgress !== curProgress) {
       const count = (elapsed / this.duration) * 99;
       this.$progress.style.width = `${count}%`;
     }
 
     if (elapsed < this.duration) {
-      this.previous_time_progress = current_time_progress;
+      this.previousProgress = curProgress;
       window.requestAnimationFrame(this.progressBar.bind(this));
     }
   }

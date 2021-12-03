@@ -94,18 +94,24 @@ export class Message {
   }
 
   private setIcon() {
+    const { src, alt } =
+      typeof this.icon === 'object'
+        ? this.icon
+        : {
+            src:
+              this.icon === 'error'
+                ? errorSVG
+                : this.icon === 'success'
+                ? successSVG
+                : notificationSVG,
+            alt: this.icon,
+          };
+
     this.$icon = document.createElement('img');
-
-    if (typeof this.icon === 'object') {
-      this.$icon.src = this.icon.src;
-      this.$icon.alt = this.icon.alt || 'Icon';
-    } else {
-      this.$icon.src =
-        this.icon === 'error' ? errorSVG : this.icon === 'success' ? successSVG : notificationSVG;
-      this.$icon.alt = this.icon;
-    }
-
+    this.$icon.src = src;
+    this.$icon.alt = alt || 'Icon';
     this.$icon.classList.add('notijs_icon');
+
     return this.$icon;
   }
 
